@@ -12,8 +12,8 @@ impl Solver {
   fn new(n: usize, r: Vec<(usize, usize, u32)>) -> Solver {
     let mut r_: RoadsMap = HashMap::new();
     for (a, b, c) in r {
-      let e = r_.entry(a).or_default();
-      e.push((b, c));
+      let e = r_.entry(a - 1).or_default();
+      e.push((b - 1, c));
     }
     Solver { n, r: r_ }
   }
@@ -21,42 +21,33 @@ impl Solver {
     use std::cmp::Reverse;
     let r = &self.r;
     let mut tasks: BinaryHeap<(Reverse<u32>, usize)> = BinaryHeap::new();
-    let mut done: HashSet<usize> = HashSet::new();
-    tasks.push((Reverse(0), town));
-    'main: loop {
-      match tasks.pop() {
-        None => {
-          return None;
-        }
-        Some((Reverse(cost), tw)) => {
-          if tw == town {
-            if 0 != cost {
-              return Some(cost);
-            }
-          } else {
-            if done.contains(&tw) {
-              continue 'main;
-            }
-            done.insert(tw);
-          }
-          if let Some(r) = r.get(&tw) {
-            for (b, c) in r {
-              if done.contains(b) {
-                continue;
-              }
-              let cost = cost + c;
-              tasks.push((Reverse(cost), *b));
-            }
-          }
+    let mut done = vec![false; self.n];
+    if let Some(r) = r.get(&town) {
+      for &(b, c) in r {
+        tasks.push((Reverse(c), b));
+      }
+    }
+    while let Some((Reverse(cost), tw)) = tasks.pop() {
+      if tw == town {
+        return Some(cost);
+      }
+      if done[tw] {
+        continue;
+      }
+      done[tw] = true;
+      if let Some(r) = r.get(&tw) {
+        for &(b, c) in r.iter().filter(|r| !done[r.0]) {
+          tasks.push((Reverse(cost + c), b));
         }
       }
     }
+    None
   }
   fn solve(&self) {
     use std::io::{stdout, BufWriter, Write};
     let out = stdout();
     let mut out = BufWriter::new(out.lock());
-    for tw in 1..=self.n {
+    for tw in 0..self.n {
       if let Some(cost) = self.cost(tw) {
         write!(out, "{}\n", cost).unwrap();
       } else {
