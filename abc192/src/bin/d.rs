@@ -27,11 +27,14 @@ fn main() {
   loop {
     let half = size / 2;
     let mid = base + half;
-    if sl.check(mid).is_some() {
+    let r = if sl.check(mid).is_some() {
       base = mid;
-    }
+      1
+    } else {
+      0
+    };
     if 0 == half {
-      println!("{}", base + 1 - c);
+      println!("{}", base + r - c);
       return;
     }
     size -= half;
