@@ -6,10 +6,7 @@ fn main() {
   let mut minv = None;
   for (a, p, x) in s {
     if a < x {
-      minv = match minv {
-        None => Some(p),
-        Some(q) => Some(if q < p { q } else { p }),
-      }
+      minv = minv.map(|q| if q < p { q } else { p }).or_else(|| Some(p));
     }
   }
   if let Some(p) = minv {
