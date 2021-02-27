@@ -5,37 +5,32 @@ fn main() {
     s: Chars,
     t: Chars,
   }
-  let s: Vec<usize> = s
-    .iter()
-    .take(4)
-    .map(|c| c.to_digit(10).unwrap() as usize)
-    .collect();
-  let t: Vec<usize> = t
-    .iter()
-    .take(4)
-    .map(|c| c.to_digit(10).unwrap() as usize)
-    .collect();
-  fn make(ar: &[usize]) -> [usize; 10] {
-    let mut rt = [0; 10];
-    for &n in ar {
-      rt[n] += 1;
+  struct Maker {
+    used: [usize; 10],
+  }
+  impl Maker {
+    fn make_hands(&mut self, chars: &[char]) -> [usize; 10] {
+      let mut rt = [0; 10];
+      for c in chars.iter().take(4) {
+        let n = c.to_digit(10).unwrap() as usize;
+        self.used[n] += 1;
+        rt[n] += 1;
+      }
+      rt
     }
-    rt
+    fn get_used(self) -> [usize; 10] {
+      self.used
+    }
   }
   fn calc(hd: &[usize; 10], h: usize) -> usize {
     (1..=9)
       .map(|n| n * 10usize.pow((hd[n] + if h == n { 1 } else { 0 }) as u32))
       .sum()
   }
-  let s_hd = make(&s);
-  let t_hd = make(&t);
-  let mut used: Vec<usize> = vec![0; 10];
-  for n in s {
-    used[n] += 1;
-  }
-  for n in t {
-    used[n] += 1;
-  }
+  let mut mk = Maker { used: [0; 10] };
+  let s_hd = mk.make_hands(&s);
+  let t_hd = mk.make_hands(&t);
+  let used = mk.get_used();
   let mut win = 0;
   let mut lose = 0;
   for i in 1..=9 {
