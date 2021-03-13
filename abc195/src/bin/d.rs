@@ -8,20 +8,18 @@ fn main() {
     baggages: [(usize, usize); n],
     boxsizes: [usize; m],
     queries: [(Usize1, Usize1); q],
-  }
-  let baggages = {
-    let mut baggages = baggages;
-    baggages.sort_by_key(|v| (Reverse(v.1), v.0));
-    baggages
   };
+  let mut baggages = baggages;
+  baggages.sort_by_key(|v| (Reverse(v.1), v.0));
+  let mut boxsizes: Vec<_> = boxsizes.iter().copied().enumerate().collect();
+  boxsizes.sort_by_key(|v| (v.1, v.0));
   for query in queries.iter() {
     let mut ans = 0;
-    let mut boxes = usable_boxes(&boxsizes, query);
-    boxes.sort();
+    let mut used = vec![false; m];
     'main: for bag in baggages.iter() {
-      for bx in boxes.iter_mut() {
-        if bag.0 <= bx.0 && !bx.1 {
-          bx.1 = true;
+      for bx in boxsizes.iter() {
+        if (bx.0 < query.0 || query.1 < bx.0) && bag.0 <= bx.1 && !used[bx.0] {
+          used[bx.0] = true;
           ans += bag.1;
           continue 'main;
         }
@@ -29,14 +27,4 @@ fn main() {
     }
     println!("{}", ans);
   }
-}
-
-fn usable_boxes(boxsizes: &[usize], query: &(usize, usize)) -> Vec<(usize, bool)> {
-  boxsizes
-    .iter()
-    .copied()
-    .enumerate()
-    .filter(|(i, _)| *i < query.0 || query.1 < *i)
-    .map(|(_, v)| (v, false))
-    .collect()
 }
