@@ -5,18 +5,43 @@ fn main() {
     s: Chars,
     x: Chars,
   };
-  let s: Vec<_> = s.iter().map(|c| c.to_digit(10).unwrap()).collect();
-  if 0 != *s.last().unwrap() && 7 != *s.last().unwrap() && 'A' == *x.last().unwrap() {
-    println!("Aoki");
-    return;
+  let pairs = {
+    let mut s: Vec<(usize, usize, char)> = s
+      .into_iter()
+      .zip(x.into_iter())
+      .enumerate()
+      .map(|(i, (c, x))| (i, c.to_digit(10).unwrap() as usize, x))
+      .collect();
+    s.reverse();
+    s
+  };
+  // dp[i][r] = i ラウンドに 7 で割ったあまりが r なら高橋君の勝ちにできる (true)
+  let mut dp = vec![[false; 7]; n + 1];
+  // n ラウンドに 7 で割ったあまりが 0 なら高橋君の勝ちにできる
+  dp[n][0] = true;
+  for (i, s, x) in pairs {
+    match x {
+      'T' => {
+        for r in 0..7 {
+          if dp[i + 1][(10 * r) % 7] || dp[i + 1][(10 * r + s) % 7] {
+            dp[i][r] = true;
+          }
+        }
+      }
+      'A' => {
+        for r in 0..7 {
+          if dp[i + 1][(10 * r) % 7] && dp[i + 1][(10 * r + s) % 7] {
+            dp[i][r] = true;
+          }
+        }
+      }
+      _ => unreachable!(),
+    };
   }
-  // let dmax = 2u32.pow(n as u32) as usize;
-  // let mut map: Vec<_> = vec![0; dmax];
-  // for d in 0..dmax {
-  //   let mut num = 0;
-  //   let mut i = 1;
-  //   for (i, v) in s.iter().copied().enumerate() {
-
-  //   }
-  // }
+  // 最初（0 ラウンド）に 7 で割ったあまりが 0 なら高橋君の勝ちにできる
+  if dp[0][0] {
+    println!("Takahashi");
+  } else {
+    println!("Aoki");
+  }
 }
