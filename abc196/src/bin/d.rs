@@ -11,8 +11,8 @@ fn main() {
   }
   let num = 2 * h * w - h - w;
   let mut lines = vec![false; num];
-  for i in 0..a {
-    lines[i] = true;
+  for v in lines.iter_mut().take(a) {
+    *v = true;
   }
   fn next(lines: &mut Vec<bool>, a: usize) -> bool {
     let a = a as isize;
