@@ -13,33 +13,31 @@ fn main() {
     }
     chss
   };
-  use std::collections::VecDeque;
-  let mut que: VecDeque<(usize, Vec<char>)> = VecDeque::new();
-  que.push_back((0, vec![]));
-  let goal = n - 1;
-  while let Some((pos, chars)) = que.pop_front() {
-    if pos == goal {
-      let len = chars.len();
-      let mut f = true;
-      for (i, c) in chars.iter().enumerate() {
-        if chars[len - i - 1] != *c {
-          f = false;
-          break;
+  use std::cmp::Reverse;
+  use std::collections::*;
+  let mut que: BinaryHeap<(Reverse<u64>, usize, usize)> = BinaryHeap::new();
+  que.push((Reverse(0), 0, n - 1));
+  let mut visited: HashSet<(usize, usize)> = HashSet::new();
+  while let Some((Reverse(len), pos1, pos2)) = que.pop() {
+    if pos1 == pos2 {
+      println!("{}", len);
+      return;
+    }
+    if !visited.contains(&(pos1, pos2)) {
+      visited.insert((pos1, pos2));
+    } else {
+      continue;
+    }
+    for &(p1, c1) in chs[pos1].iter() {
+      if p1 == pos2 {
+        que.push((Reverse(len + 1), p1, pos2));
+      }
+      for &(p2, c2) in chs[pos2].iter() {
+        if c1 == c2 {
+          que.push((Reverse(len + 2), p1, p2));
         }
       }
-      if f {
-        println!("{}", len);
-        return;
-      }
-      if len > m * 2 {
-        println!("-1");
-        return;
-      }
-    }
-    for (p, c) in chs[pos].iter() {
-      let mut chars: Vec<char> = chars.iter().copied().collect();
-      chars.push(*c);
-      que.push_back((*p, chars));
     }
   }
+  println!("-1");
 }
