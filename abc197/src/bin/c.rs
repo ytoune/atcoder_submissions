@@ -10,9 +10,7 @@ fn main() {
     let mut xored = 0;
     let mut ored = 0;
     for (j, a) in a.iter().copied().enumerate() {
-      if j < n {
-        ored |= a;
-      }
+      ored |= a;
       if 0 != (i >> j & 1) {
         xored ^= ored;
         ored = 0;
