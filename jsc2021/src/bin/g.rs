@@ -10,13 +10,13 @@ fn main() {
   let mut groups = n;
   for i in 0..n {
     for j in 0..n {
-      match a[i][j] {
-        1 => {
-          uf.union(i, j);
+      if 1 == a[i][j] {
+        if uf.union(i, j) {
           groups -= 1;
+        } else {
+          println!("0");
+          return;
         }
-        0 | -1 => (),
-        _ => unreachable!(),
       }
     }
   }
