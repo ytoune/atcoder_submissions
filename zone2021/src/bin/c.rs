@@ -26,7 +26,7 @@ fn main() {
     Ordering::Greater
   });
   if let Err(ans) = res {
-    println!("{}", ans - 1);
+    println!("{}", ans);
   }
 }
 
@@ -52,17 +52,16 @@ impl<
     if self.end <= self.start {
       return Err(self.start);
     }
-    let mut base = self.start;
-    let mut end = self.end;
-    while end > base + T::from(1) {
-      let size = end - base;
-      let mid = base + size / T::from(2);
+    let mut left = self.start;
+    let mut right = self.end;
+    while right > left + T::from(1) {
+      let mid = left + (right - left) / T::from(2);
       match f(&mid) {
-        Less => base = mid,
+        Less => left = mid,
         Equal => return Ok(mid),
-        Greater => end = mid,
+        Greater => right = mid,
       }
     }
-    Err(base)
+    Err(left)
   }
 }
