@@ -1,79 +1,67 @@
 fn main() {
   proconio::input! {
     n: usize,
-    a: [i64; n],
+    a: [u64; n],
   };
-  struct Solve {
-    pub diff: i64,
-    pub cnt1: usize,
-    pub cnt2: usize,
-    pub st: Vec<u8>,
-    pub mods: Vec<i64>,
-  }
-  let mut st = Solve {
-    diff: 0,
-    cnt1: 0,
-    cnt2: 0,
-    st: vec![0; n],
-    mods: a.iter().map(|&a| a % 200).collect(),
-  };
-  impl Solve {
-    fn next(&mut self) -> bool {
-      for (i, s) in self.st.iter_mut().enumerate() {
-        match *s {
-          0 => {
-            *s = 1;
-            self.cnt1 += 1;
-            self.diff += self.mods[i];
-            self.diff %= 200;
-            return false;
-          }
-          1 => {
-            *s = 2;
-            self.cnt1 -= 1;
-            self.cnt2 += 1;
-            self.diff -= self.mods[i] * 2;
-            self.diff %= 200;
-            return false;
-          }
-          2 => {
-            self.cnt2 -= 1;
-            self.diff += self.mods[i];
-            self.diff %= 200;
-            *s = 0;
-          }
-          _ => unreachable!(),
-        }
-      }
-      true
-    }
-  }
-  loop {
-    if 0 != st.cnt1 && 0 != st.cnt2 && 0 == st.diff {
+  use std::collections::*;
+  let mut map = HashMap::<u64, Vec<usize>>::new();
+  let mut st = PowerPermutations::new(2, n);
+  st.next();
+  while let Some(st) = st.next() {
+    let sum = st
+      .iter()
+      .zip(&a)
+      .map(|(s, a)| if *s == 1 { *a % 200 } else { 0 })
+      .sum::<u64>()
+      % 200;
+    if let Some(st2) = map.get(&sum) {
+      let print_nums = |st: &[usize]| {
+        let nums = st
+          .iter()
+          .enumerate()
+          .filter(|(_, u)| **u == 1)
+          .map(|(i, _)| format!("{}", i + 1))
+          .collect::<Vec<_>>();
+        println!("{} {}", nums.len(), nums.join(" "));
+      };
       println!("Yes");
-      let nums1: String = st
-        .st
-        .iter()
-        .enumerate()
-        .filter(|(_, u)| **u == 1)
-        .map(|(i, _)| format!("{}", i + 1))
-        .collect::<Vec<_>>()
-        .join(" ");
-      println!("{} {}", st.cnt1, nums1);
-      let nums2: String = st
-        .st
-        .iter()
-        .enumerate()
-        .filter(|(_, u)| **u == 2)
-        .map(|(i, _)| format!("{}", i + 1))
-        .collect::<Vec<_>>()
-        .join(" ");
-      println!("{} {}", st.cnt2, nums2);
+      print_nums(&st2);
+      print_nums(&st);
       return;
+    } else {
+      map.insert(sum, st.iter().copied().collect());
     }
-    if st.next() {
-      println!("No");
-      return;
+  }
+  println!("No");
+}
+
+struct PowerPermutations {
+  count: usize,
+  state: Vec<usize>,
+  run: bool,
+}
+impl PowerPermutations {
+  pub fn new(count: usize, size: usize) -> Self {
+    PowerPermutations {
+      count,
+      state: vec![0; size],
+      run: false,
+    }
+  }
+  fn next(&mut self) -> Option<&[usize]> {
+    if self.run {
+      for s in self.state.iter_mut() {
+        if *s < self.count - 1 {
+          *s += 1;
+          return Some(&self.state);
+        }
+        *s = 0;
+      }
+      self.run = false;
+      None
+    } else {
+      self.run = true;
+      Some(&self.state)
     }
   }
 }
