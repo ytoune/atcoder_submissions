@@ -17,19 +17,17 @@ fn main() {
       let is_tkhs = 1 == (h + w) % 2;
       let sign = if is_tkhs { 1 } else { -1 };
       let mut scr: Option<i32> = None;
-      if h + 1 < hsize {
-        let add = sign * get_cell(h + 1, w);
-        let s = scores[h + 1][w] + add;
-        scr = scr
+      let calc = |scr: Option<i32>, h: usize, w: usize| {
+        let s = scores[h][w] + sign * get_cell(h, w);
+        scr
           .map(|t| if is_tkhs { t.max(s) } else { t.min(s) })
-          .or_else(|| Some(s));
+          .or_else(|| Some(s))
+      };
+      if h + 1 < hsize {
+        scr = calc(scr, h + 1, w);
       }
       if w + 1 < wsize {
-        let add = sign * get_cell(h, w + 1);
-        let s = scores[h][w + 1] + add;
-        scr = scr
-          .map(|t| if is_tkhs { t.max(s) } else { t.min(s) })
-          .or_else(|| Some(s));
+        scr = calc(scr, h, w + 1);
       }
       if let Some(s) = scr {
         scores[h][w] = s;
