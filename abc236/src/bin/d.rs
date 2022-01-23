@@ -21,9 +21,10 @@ fn main() {
           let mut unused = unused.clone();
           unused.set(j, false);
           unused.set(t, false);
-          return solve(rels, ans, t, &unused);
+          solve(rels, ans, t, &unused)
+        } else {
+          ans
         }
-        ans
       })
       .max()
       .unwrap()
