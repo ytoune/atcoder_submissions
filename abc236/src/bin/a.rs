@@ -1,5 +1,5 @@
 fn main() {
-  use proconio::marker::{Usize1, Chars};
+  use proconio::marker::{Chars, Usize1};
   proconio::input! {
     mut s: Chars,
     a: Usize1, b: Usize1,
