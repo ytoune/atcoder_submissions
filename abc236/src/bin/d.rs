@@ -7,30 +7,31 @@ fn main() {
     proconio::input! { line: [u64; len] };
     rels.push(line);
   }
-  use std::collections::HashSet;
-  fn solve(rels: &Vec<Vec<u64>>, ans: u64, i: usize, used: &HashSet<usize>) -> u64 {
+  use fixedbitset::FixedBitSet;
+  fn solve(rels: &Vec<Vec<u64>>, ans: u64, i: usize, unused: &FixedBitSet) -> u64 {
     rels[i]
       .iter()
       .cloned()
       .enumerate()
       .map(|(j, d)| (j + i + 1, d))
-      .filter(|(j, _)| i != *j && !used.contains(j))
+      .filter(|(j, _)| i != *j && unused.contains(*j))
       .map(|(j, d)| {
         let ans = ans ^ d;
-        if i + 1 < rels.len() {
-          let mut used = used.clone();
-          used.insert(j);
-          for t in (i + 1)..rels.len() {
-            if !used.contains(&t) {
-              used.insert(t);
-              return solve(rels, ans, t, &used);
-            }
-          }
+        if let Some(t) = unused.ones().filter(|t| *t != j).next() {
+          let mut unused = unused.clone();
+          unused.set(j, false);
+          unused.set(t, false);
+          return solve(rels, ans, t, &unused);
         }
         ans
       })
       .max()
       .unwrap()
   }
-  println!("{}", solve(&rels, 0, 0, &[0].iter().cloned().collect()));
+  let mut unused = FixedBitSet::with_capacity(2 * n);
+  for i in 0..(2 * n) {
+    unused.insert(i);
+  }
+  unused.set(0, false);
+  println!("{}", solve(&rels, 0, 0, &unused));
 }
