@@ -10,10 +10,7 @@ fn main() {
       .and_modify(|v| { *v += 1 })
       .or_insert(1);
   }
-  for (&num, &count) in nums.iter() {
-    if 3 == count {
-      println!("{}", num);
-      return;
-    }
+  if let Some((&num, _)) = nums.iter().find(|(_, c)| 3 == **c) {
+    println!("{}", num);
   }
 }
